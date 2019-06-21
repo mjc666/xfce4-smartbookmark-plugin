@@ -73,6 +73,28 @@ static void
 smartbookmark_construct(XfcePanelPlugin *plugin);
 XFCE_PANEL_PLUGIN_REGISTER(smartbookmark_construct);
 
+/* return a new string with every instance of ch replaced by repl */
+static char *replace(const char *s, char ch, const char *repl) {
+    int count = 0;
+    const char *t;
+    for(t=s; *t; t++)
+        count += (*t == ch);
+
+    size_t rlen = strlen(repl);
+    char *res = malloc(strlen(s) + (rlen-1)*count + 1);
+    char *ptr = res;
+    for(t=s; *t; t++) {
+        if(*t == ch) {
+            memcpy(ptr, repl, rlen);
+            ptr += rlen;
+        } else {
+            *ptr++ = *t;
+        }
+    }
+    *ptr = 0;
+    return res;
+}
+
 static gboolean do_search(const char *url, const char *keyword)
 {
     DBG ("Do search");
@@ -109,28 +131,6 @@ static void text_entry_changed_cb(GtkWidget *widget, t_search *search)
     DBG ("text_entry_changed_cb");
     search->label_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(search->label_entry)));
     gtk_label_set_text(GTK_LABEL(search->label), search->label_text);
-}
-
-/* return a new string with every instance of ch replaced by repl */
-static char *replace(const char *s, char ch, const char *repl) {
-    int count = 0;
-    const char *t;
-    for(t=s; *t; t++)
-        count += (*t == ch);
-
-    size_t rlen = strlen(repl);
-    char *res = malloc(strlen(s) + (rlen-1)*count + 1);
-    char *ptr = res;
-    for(t=s; *t; t++) {
-        if(*t == ch) {
-            memcpy(ptr, repl, rlen);
-            ptr += rlen;
-        } else {
-            *ptr++ = *t;
-        }
-    }
-    *ptr = 0;
-    return res;
 }
 
 /* callback: apply the new size to the entry widget */
